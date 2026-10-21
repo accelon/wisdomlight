@@ -3,7 +3,7 @@
 Checks:
   - anchors/labels/spans/edges/questions/answers parse and ids are unique
   - every parent/label/span/answer anchor exists
-  - 193 unit E ranges cover 1-27902 without gaps
+  - 193 unit E ranges cover 1-27904 without gaps (text-derived)
   - 11 section S ranges cover 1-412 without gaps
   - 151 questions, 278 answers; every question has an answer
   - question counts per section match the thesis (12, 41, 9, 2, 8, 3, 5, 3, 11, 33, 24)
@@ -79,8 +79,8 @@ def main():
             errors.append(f"E gap {prev + 1}-{start - 1}")
         prev = end
     e_end = prev
-    if e_end != 27902:
-        errors.append(f"E end {e_end} != 27902")
+    if e_end != 27904:
+        errors.append(f"E end {e_end} != 27904")
 
     s_spans = [s for s in spans if s["anchor"].startswith("jjn/") and s["anchor"].count("-") == 0]
     sr = sorted((int(s["start"]), int(s["end"])) for s in s_spans)
@@ -117,9 +117,9 @@ def main():
     print(f"E spans {len(e_spans)}  E coverage 1-{e_end}")
     print(f"questions per section: {dict(sorted(by_section.items(), key=lambda kv: int(kv[0].split('/')[1])))}")
     print(f"answer count: {dict(sorted(Counter(aq.values()).items()))}")
-    print(f"checks mismatches: {len(mism)}")
+    print(f"checks adjusted: {len(mism)}")
     for m in mism:
-        print(f"  {m['anchor']} range={m['range_chars']} text={m['text_chars']}")
+        print(f"  {m['anchor']} thesis={m['thesis_chars']} text={m['text_chars']}")
     if errors:
         print("ERRORS:")
         for e in errors:

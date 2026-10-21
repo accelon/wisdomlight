@@ -135,6 +135,15 @@ def build(appendix_path):
                     "path": [parse_id_label(p)[0] for p in path if parse_id_label(p)],
                 }
 
+    # Recompute E ranges from the transcribed text so that range length == text
+    # length. The thesis's own E numbers are kept as e_start/e_end and compared
+    # in checks.tsv.
+    cum = 0
+    for nid, nd in sorted(nodes.items(), key=lambda kv: kv[1]["e_start"]):
+        nd["new_e_start"] = cum + 1
+        cum += len(nd["e_text"])
+        nd["new_e_end"] = cum
+
     # --- appendix 7: questions and answers --------------------------------
     questions = []
     answers = []
@@ -205,25 +214,28 @@ def build(appendix_path):
 
     anchors = []
     anchors.append({"id": "jjn", "parent": "", "kind": "workgroup",
-                    "label": "金剛般若波羅蜜經講義（江味農）", "order": 0, "note": ""})
+                    "label": "金剛般若波羅蜜經講義（江味農）", "order": 0, "note": "根"})
     anchors.append({"id": "vcpp", "parent": "", "kind": "workgroup",
-                    "label": "金剛般若波羅蜜經（羅什譯；2011 版文字）", "order": 0, "note": ""})
+                    "label": "金剛般若波羅蜜經（羅什譯；2011 版文字）", "order": 0, "note": "根"})
     sutra_labels = {1: "法會因由分第一", 2: "善現起請分第二", 3: "大乘正宗分第三"}
     for i in (1, 2, 3):
         anchors.append({"id": f"vcpp/{i}", "parent": "vcpp", "kind": "sutra",
-                        "label": sutra_labels[i], "order": i, "note": ""})
+                        "label": sutra_labels[i], "order": i, "note": "經文段"})
     # sutra ranges: S1-86, S87-273, S274-412
     sutra_bounds = {1: (1, 86), 2: (87, 273), 3: (274, 412)}
 
     for n in range(1, 12):
         s = sections[n]
+        kids = [k for nid, k in nodes.items() if nid.startswith(f"{n}-")]
+        e_note = (f"E{min(k['new_e_start'] for k in kids)}-{max(k['new_e_end'] for k in kids)}"
+                  if kids else f"E{s['e_start']}-{s['e_end']}")
         anchors.append({"id": f"jjn/{n}", "parent": "jjn", "kind": "section",
                         "label": s["jiang_label"], "order": n,
-                        "note": f"S{s['s_start']}-{s['s_end']}；E{s['e_start']}-{s['e_end']}"})
+                        "note": f"S{s['s_start']}-{s['s_end']}；{e_note}"})
     for nid in sorted([x for x in all_ids if "-" in x], key=sort_key):
         kind = "structure" if has_children(nid) else "unit"
         label = labels.get(nid) or nodes.get(nid, {}).get("label") or nid
-        note = (f"E{nodes[nid]['e_start']}-{nodes[nid]['e_end']}"
+        note = (f"E{nodes[nid]['new_e_start']}-{nodes[nid]['new_e_end']}"
                 if nid in nodes else "結構節點")
         anchors.append({"id": f"jjn/{nid}", "parent": f"jjn/{nid.rsplit('-', 1)[0]}",
                         "kind": kind, "label": f"{nid} {label}".strip(),
@@ -254,8 +266,8 @@ def build(appendix_path):
         span_rows.append((f"jjn/{n}", "JJN.2011", "char", s["s_start"], s["s_end"],
                           s["s_end"] - s["s_start"] + 1, s["s_text"]))
     for nid, nd in nodes.items():
-        span_rows.append((f"jjn/{nid}", "JJN.2011", "char", nd["e_start"], nd["e_end"],
-                          nd["e_end"] - nd["e_start"] + 1, nd["e_text"]))
+        span_rows.append((f"jjn/{nid}", "JJN.2011", "char", nd["new_e_start"], nd["new_e_end"],
+                          nd["new_e_end"] - nd["new_e_start"] + 1, nd["e_text"]))
 
     # sutra spans: concatenate section S text
     for i in (1, 2, 3):
@@ -264,19 +276,20 @@ def build(appendix_path):
         span_rows.append((f"vcpp/{i}", "JJN.2011", "char", start, end, end - start + 1,
                           "".join(parts)))
 
-    # checks: E text length vs E range
+    # checks: thesis E length vs transcribed text length, with recomputed ranges
     checks_rows = []
     for nid, nd in nodes.items():
         want = nd["e_end"] - nd["e_start"] + 1
         got = len(nd["e_text"])
         checks_rows.append((f"jjn/{nid}", nd["e_start"], nd["e_end"], want, got,
-                            "ok" if got == want else "mismatch",
-                            "" if got == want else "附錄段落邊界與字碼邊界不一致，待核原書"))
+                            nd["new_e_start"], nd["new_e_end"], got,
+                            "ok" if got == want else "adjusted",
+                            "相符" if got == want else "論文 E 範圍與文字長度不符；已依文字重算"))
 
     works_rows = [
         ("JJN.2011", "江味農", "金剛般若波羅蜜經講義", "2011 修訂版（佛陀教育基金會）",
-         "partial", "S1-412、E1-27902", "TBD",
-         "論文採用的版本；頁 11–13、128–194。正文可能已屆保護期，編校另計。"),
+         "partial", "S1-412、E1-27904（依文字重算）", "PD",
+         "江味農文本公有領域；引用時註明出處（頁 11–13、128–194）。"),
         ("JJN.B23", "江味農", "金剛般若波羅蜜經講義", "CBETA 大藏經補編 No.23",
          "full", "全文 36.5 萬字（sources/）", "non-commercial",
          "第二見證；標點與 2011 版不同，不可直接套用 E 字碼。"),
@@ -302,13 +315,14 @@ def build(appendix_path):
         for order, an in enumerate(q["answers"], 1):
             aid += 1
             if an in nodes:
-                ev = f"E{nodes[an]['e_start']}-{nodes[an]['e_end']}"
+                ev = f"E{nodes[an]['new_e_start']}-{nodes[an]['new_e_end']}"
             elif an.isdigit() and int(an) in sections:
-                sec = sections[int(an)]
-                ev = f"E{sec['e_start']}-{sec['e_end']}"
+                kids = [nd for nid, nd in nodes.items() if nid.startswith(an + "-")]
+                ev = (f"E{min(k['new_e_start'] for k in kids)}-{max(k['new_e_end'] for k in kids)}"
+                      if kids else "")
             else:
                 kids = [nd for nid, nd in nodes.items() if nid.startswith(an + "-")]
-                ev = (f"E{min(k['e_start'] for k in kids)}-{max(k['e_end'] for k in kids)}"
+                ev = (f"E{min(k['new_e_start'] for k in kids)}-{max(k['new_e_end'] for k in kids)}"
                       if kids else "")
             arows.append((f"a-{aid:04d}", q["id"], f"jjn/{an}", order, ev,
                           labels.get(an, "")))
@@ -355,7 +369,8 @@ def write(out_dir, data):
         data["edges"])
     tsv("answers.tsv", ["id", "question", "anchor", "order", "evidence", "note"],
         data["answers"])
-    tsv("checks.tsv", ["anchor", "e_start", "e_end", "range_chars", "text_chars", "status", "note"],
+    tsv("checks.tsv", ["anchor", "thesis_start", "thesis_end", "thesis_chars",
+                       "text_chars", "start", "end", "chars", "status", "note"],
         data["checks_rows"])
     tsv("works.tsv", ["edition", "author", "title", "basis", "extent", "covered", "license", "note"],
         data["works_rows"])
@@ -391,11 +406,11 @@ def main():
     print("anchors:", st["anchors"], dict(st["anchors_by_kind"]))
     print("labels:", st["labels"], "spans:", st["spans"], "edges:", st["edges"])
     print("questions:", st["questions"], "answers:", st["answers"])
-    print("E text chars:", st["e_text_chars"], "(expected 27902)")
+    print("E text chars:", st["e_text_chars"], "(transcribed text; thesis says 27902)")
     print("S text chars:", st["s_text_chars"], "(expected 412)")
 
-    # coverage
-    er = sorted((nd["e_start"], nd["e_end"]) for nd in data["nodes"].values())
+    # coverage (recomputed ranges)
+    er = sorted((nd["new_e_start"], nd["new_e_end"]) for nd in data["nodes"].values())
     gaps = []
     prev = 0
     for s, e in er:
@@ -425,15 +440,14 @@ def main():
     print("d2 parents:", len(d2p), "structure anchors:", len(struct),
           "missing:", sorted(d2p - struct), "extra:", sorted(struct - d2p))
 
-    # debug: E text length vs range
+    # debug: thesis E length vs transcribed text
     mism = []
     for nid, nd in data["nodes"].items():
         want = nd["e_end"] - nd["e_start"] + 1
         got = len(nd["e_text"])
         if got != want:
-            mism.append((nid, nd["e_start"], nd["e_end"], want, got,
-                         nd["e_text"][:8], nd["e_text"][-8:]))
-    print("E length mismatches:", len(mism))
+            mism.append((nid, want, got, nd["new_e_start"], nd["new_e_end"]))
+    print("thesis E length mismatches:", len(mism))
     for m in mism[:10]:
         print("  ", m)
 

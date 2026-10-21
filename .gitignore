@@ -1,0 +1,7 @@
+# 論文原始檔：不放 GitHub（見 samples/jingang-2016/README.md）
+/論文*.docx
+/~$*.docx
+
+# Python
+__pycache__/
+*.pyc
