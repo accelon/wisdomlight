@@ -100,7 +100,7 @@
 江味農《講義》本身就是一本**集注＋校勘**，是「後人加值」的極致案例；
 而且已有人做過平行文本，可直接接上。
 
-**平行文本已找到**：`D:\2023\yonglezang\ylz-prjn.offtext\vcpp*.off`
+**平行文本已找到**：永樂藏數位化 `vcpp*.off`（本地素材，未隨 repo 散布）
 （六漢譯＋梵本轉寫，一行一句，`^ck1`–`^ck32` 三十二分、`^pb`／`^lb` 頁行標記）。
 前三分的 `anchor_map` 與 claim 見 [samples/jingang/](samples/jingang/README.md)；
 實測得到三個格式結論：行號不可用來對齊、科判 label 要按版本記錄、證據常跨行（span 用行範圍）。
