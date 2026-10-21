@@ -8,6 +8,8 @@
 > 江味農取自已存檔的 [sources/jiang-weinong-jingang-jiangyi.md](../../sources/jiang-weinong-jingang-jiangyi.md)
 > （DILA 江味農數位典藏，CBETA 大藏經補編 No.23）；朱棣取自線上版（簡體原貌）。仍待核原書。
 > 本樣本只做**前三分**的 anchor_map（21 列），已逐列與原檔核對。
+> 這是**格式樣本**；李慧萍 2016 年論文完整的 193 節點、151 題問答，
+> 見 [../jingang-2016/](../jingang-2016/README.md)。
 
 > **work 與 edition 分開**：六譯皆見於大正藏（T8.235–T8.239；玄奘在 T8.220 卷 577），
 > 所以 `work` 用大正藏經號（著作身分）；但本樣本的**文字**來自永樂藏，`edition` 用 `YLZ.*`（文字見證）。
