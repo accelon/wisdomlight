@@ -1,0 +1,5 @@
+# anchor	parent	kind	label	order	note
+vcpp		workgroup	金剛般若波羅蜜經（六譯＋梵本）	0	三十二分是外加的比較格，來源待證（c-vj-0005 只證明並存兩套分科）
+vcpp/1	vcpp	section	法會因由	1	笈多本此分起於「歸命一切佛菩薩海等」；吉藏與江味農的解釋都掛在這裡
+vcpp/2	vcpp	section	善現啟請	2	留支本此分中另有「住分第三」分科標記
+vcpp/3	vcpp	section	大乘正宗	3	

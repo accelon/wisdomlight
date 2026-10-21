@@ -1,0 +1,10 @@
+# id	from	kind	to	said_by	recorded_by	status	evidence	note
+e-vj-0001	work:T/1699	annotates	anchor:vcpp/1	actor:me	actor:me	reviewed	c-vj-0006	疏釋「如是我聞」的由來
+e-vj-0002	c-vj-0007	derives_from	c-vj-0006	actor:me	actor:me	draft	c-vj-0006,c-vj-0007	兩段解釋主題相同、措辭不同；只記相似，不斷定承襲（李慧萍 2014 已指出有文本參照關係）
+e-vj-0003	work:JGJZ	annotates	anchor:vcpp/1	actor:me	actor:me	reviewed	—	集注把歷代注家掛在同一段經文上
+e-vj-0004	work:JGJZ	quotes	c-vj-0008	actor:me	actor:me	reviewed	—	【王日休曰】
+e-vj-0005	work:JGJZ	quotes	c-vj-0009	actor:me	actor:me	reviewed	—	【李文会曰】
+e-vj-0006	work:JGJZ	quotes	c-vj-0011	actor:me	actor:me	reviewed	—	【肇法师曰】
+e-vj-0007	work:JGJZ	quotes	c-vj-0012	actor:me	actor:me	reviewed	—	【六祖曰】
+e-vj-0008	work:JGJZ	quotes	c-vj-0013	actor:me	actor:me	reviewed	—	【僧若讷曰】
+e-vj-0009	c-vj-0009	quotes	c-vj-0010	actor:me	actor:me	reviewed	c-vj-0009,c-vj-0010	二層引文：李文會文中「是故傅大士云」以下為傅大士偈
